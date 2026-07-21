@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ECO-TERRA: วิกฤตโลกหลากยุค (40 ช่อง)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@500;700;800&family=Prompt:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap');
+
+  :root{
+    /* deep-earth core */
+    --void: #171009;
+    --void-deep: #0c0805;
+    /* sedimentary layers (header/panels) */
+    --strata-1: #4a2f1c;
+    --strata-2: #6b4526;
+    --strata-3: #8a6238;
+    /* surfaces */
+    --stone: #f7eed8;
+    --stone-deep: #efe2c0;
+    --parchment: #fffdf6;
+    /* accents */
+    --magma: #ff5a36;
+    --magma-deep: #c23b1e;
+    --amber: #e3a53c;
+    --amber-soft: #f3c877;
+    --moss: #4f7a5b;
+    /* type */
+    --ink: #241a10;
+    --paper: #f7eed8;
+    --muted: #8a7a5f;
+    --mono: 'JetBrains Mono', monospace;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; color: var(--ink); font-family:'Prompt',sans-serif;
+    background:
+      repeating-linear-gradient(115deg, rgba(255,255,255,0.02) 0 2px, transparent 2px 42px),
+      linear-gradient(180deg, var(--void) 0%, var(--void-deep) 100%);
+    background-attachment: fixed;
+  }
+
+  .app{ max-width: 1080px; margin: 0 auto; padding: 22px 14px 56px; }
+
+  .header{
+    position:relative;
+    background:
+      linear-gradient(180deg, var(--strata-3) 0%, var(--strata-3) 22%,
+        var(--strata-2) 22%, var(--strata-2) 54%,
+        var(--strata-1) 54%, var(--strata-1) 78%,
+        var(--void-deep) 78%, var(--void-deep) 100%);
+    border-radius: 16px;
+    padding: 22px 20px 18px;
+    text-align:center;
+    color: var(--paper);
+    box-shadow: 0 14px 30px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.06);
+    overflow:hidden;
+    border: 1px solid rgba(0,0,0,0.4);
+  }
+  .header::after{
+    content:'';
+    position:absolute; left:50%; top:0; bottom:0; width:2px; transform:translateX(-50%);
+    background: repeating-linear-gradient(180deg, rgba(255,197,110,0.55) 0 6px, transparent 6px 12px);
+    opacity:.55;
+  }
+  .header .eyebrow{
+    position:relative; z-index:1;
+    font-family:var(--mono); font-size:10px; letter-spacing:2.5px; text-transform:uppercase;
+    color: var(--amber-soft); opacity:.85; margin-bottom:6px;
+  }
+  .header h1{
+    position:relative; z-index:1;
+    font-family:'Kanit',sans-serif;
+    font-weight:800;
+    font-size: clamp(19px, 4.4vw, 29px);
+    margin: 0 0 6px;
+    color: var(--amber-soft);
+    text-shadow: 0 2px 0 rgba(0,0,0,0.35);
+    letter-spacing: .3px;
+  }
+  .header p{ position:relative; z-index:1; margin:0; font-size:12.5px; color: #e9dcc0; opacity:.9; }
+
+  /* ---- Setup screen ---- */
+  .setup{
+    margin-top:16px;
+    background: var(--parchment);
+    background-image: linear-gradient(180deg, rgba(227,165,60,0.06), transparent 120px);
+    border-radius:16px;
+    padding:22px;
+    border:1px solid var(--stone-deep);
+    box-shadow: 0 16px 34px rgba(0,0,0,0.35);
+  }
+  .setup h2{
+    font-family:'Kanit',sans-serif; font-weight:700; font-size:17px; margin:0 0 14px; color: var(--strata-1);
+    display:flex; align-items:center; gap:8px;
+  }
+  .setup h2::before{ content:'⛏'; font-size:15px; }
+  .player-row{ display:flex; gap:8px; margin-bottom:10px; align-items:center; }
+  .player-row input[type=text]{
+    flex:1; padding:10px 13px; border-radius:9px; border:1.5px solid var(--stone-deep);
+    background:#fffef9;
+    font-family:'Prompt'; font-size:14px; outline:none; transition: border-color .15s, box-shadow .15s;
+  }
+  .player-row input[type=text]:focus{ border-color: var(--amber); box-shadow: 0 0 0 3px rgba(227,165,60,0.18); }
+  .swatches{ display:flex; gap:5px; }
+  .swatch{ width:22px; height:22px; border-radius:50%; cursor:pointer; border:2px solid transparent; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.12); transition: transform .12s; }
+  .swatch:hover{ transform: scale(1.12); }
+  .swatch.selected{ border-color: var(--ink); box-shadow: 0 0 0 2px #fff, 0 0 0 3px var(--ink); }
+  .remove-player{ background:none; border:none; color: var(--magma-deep); font-size:19px; cursor:pointer; padding:0 6px; line-height:1; }
+
+  .setup-actions{ display:flex; gap:10px; margin-top:10px; flex-wrap:wrap; }
+  .btn{
+    font-family:'Kanit',sans-serif; font-weight:700; border:none; border-radius:11px;
+    padding:11px 18px; cursor:pointer; font-size:15px; transition: transform .12s, box-shadow .12s, opacity .2s;
+    letter-spacing:.2px;
+  }
+  .btn:hover:not(:disabled){ transform: translateY(-2px); }
+  .btn:active:not(:disabled){ transform: translateY(0); }
+  .btn:disabled{ opacity:.45; cursor:not-allowed; }
+  .btn-add{ background: #e7ddc4; color: var(--strata-1); border:1px solid var(--stone-deep); }
+  .btn-add:hover:not(:disabled){ background:#ddd0ac; }
+  .btn-start{
+    background: linear-gradient(135deg, var(--amber-soft), var(--amber) 55%, var(--magma-deep));
+    color:#301c05; box-shadow:0 8px 20px rgba(227,165,60,.4);
+  }
+  .setup-hint{ font-size:12px; color:var(--muted); margin-top:10px; font-family:var(--mono); }
+
+  /* ---- Legend ---- */
+  .legend{
+    display:flex; flex-wrap:wrap; gap:7px; margin-top:16px; font-size:11px;
+    padding-top:14px; border-top:1px dashed var(--stone-deep);
+  }
+  .legend span{
+    display:flex; align-items:center; gap:5px; padding:4px 10px; border-radius:999px;
+    background:#fbf6e8; border:1px solid var(--stone-deep); color:#4a3c26; font-weight:500;
+  }
+  .legend .dot{ width:10px; height:10px; border-radius:50%; display:inline-block; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.15); }
+
+  /* ---- Game screen ---- */
+  .game{ display:none; margin-top:16px; }
+  .game.active{ display:block; }
+
+  .status-bar{
+    display:flex; justify-content:space-between; align-items:center;
+    background: var(--parchment); border:1px solid var(--stone-deep); border-radius:14px;
+    padding:11px 16px; margin-bottom:14px; flex-wrap:wrap; gap:10px;
+    box-shadow: 0 8px 18px rgba(0,0,0,0.28);
+  }
+  .turn-indicator{ display:flex; align-items:center; gap:8px; font-weight:700; font-family:'Kanit',sans-serif; font-size:14px; color:var(--strata-1); }
+  .turn-dot{ width:16px; height:16px; border-radius:50%; box-shadow:0 0 0 3px rgba(0,0,0,0.08), 0 0 10px currentColor; animation: pulse-dot 2s ease-in-out infinite; }
+  @keyframes pulse-dot{ 0%,100%{ opacity:1; } 50%{ opacity:.55; } }
+  .players-scores{ display:flex; gap:10px; flex-wrap:wrap; font-size:11px; color:var(--muted); font-family:var(--mono); }
+  .players-scores span b{ color: var(--ink); font-family:'Prompt',sans-serif; }
+
+  .board-wrap{
+    position:relative;
+    background:
+      repeating-linear-gradient(90deg, rgba(74,47,28,0.05) 0 1px, transparent 1px 24px),
+      repeating-linear-gradient(0deg, rgba(74,47,28,0.05) 0 1px, transparent 1px 24px),
+      var(--stone);
+    border: 3px solid var(--strata-2);
+    border-radius: 16px;
+    padding: 10px;
+    box-shadow: inset 0 0 0 6px var(--parchment), 0 12px 26px rgba(0,0,0,0.4);
+    overflow-x: auto;
+  }
+  .board{
+    display:grid;
+    grid-template-columns: repeat(8, minmax(112px, 1fr));
+    gap: 10px;
+    min-width: 940px;
+  }
+  .cell{
+    position:relative;
+    border-radius: 16px;
+    border: 2.5px solid transparent;
+    padding: 8px 6px 22px;
+    min-height: 138px;
+    display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
+    font-size: 9.5px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.5);
+    overflow:hidden;
+    transition: transform .12s, box-shadow .12s;
+  }
+  .cell:hover{ transform: translateY(-3px); box-shadow: 0 8px 16px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.5); }
+  .cell::before{
+    content:'';
+    position:absolute; inset:0;
+    background: radial-gradient(circle at 28% 10%, rgba(255,255,255,0.65), transparent 55%);
+    pointer-events:none;
+  }
+  .cell .num{
+    position:absolute; top:6px; left:6px; z-index:1;
+    min-width:22px; height:22px; padding:0 6px; border-radius:999px;
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--mono); font-weight:700; font-size:9.5px; color:#fff; white-space:nowrap;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(255,255,255,0.25);
+  }
+  .cell .icon-chip{
+    width:58px; height:58px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:32px; margin-top:20px; margin-bottom:8px;
+    background:#fff; box-shadow: 0 3px 8px rgba(0,0,0,0.25), inset 0 0 0 1px rgba(0,0,0,0.04);
+    position:relative; z-index:1;
+  }
+  .cell .label{ font-weight:700; line-height:1.25; text-align:center; font-size:11px; padding:0 4px; position:relative; z-index:1; color: var(--ink); }
+  .cell .badge{
+    position:absolute; bottom:5px; right:6px; z-index:1;
+    font-family:var(--mono); font-size:9.5px; font-weight:700; padding:2px 7px; border-radius:999px;
+    color:#fff; box-shadow:0 1px 3px rgba(0,0,0,0.3);
+  }
+
+  .tokens{ position:absolute; bottom:5px; left:5px; right:auto; display:flex; gap:2px; flex-wrap:wrap; z-index:2; max-width: 60%; }
+  .token{
+    width:13px; height:13px; border-radius:50%;
+    border: 1.5px solid rgba(0,0,0,0.3);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4), inset 0 0 0 1.5px rgba(255,255,255,0.35);
+    animation: token-land .24s cubic-bezier(.34,1.56,.64,1);
+  }
+  .token.mover{
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4), inset 0 0 0 1.5px rgba(255,255,255,0.35), 0 0 0 3px rgba(255,90,54,0.35);
+  }
+  @keyframes token-land{
+    0%{ transform: translateY(-16px) scale(.5); opacity:.3; }
+    65%{ transform: translateY(2px) scale(1.2); opacity:1; }
+    100%{ transform: translateY(0) scale(1); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .token{ animation:none; }
+  }
+
+  /* ---- Controls ---- */
+  .controls{
+    margin-top:16px; background: var(--parchment); border:1px solid var(--stone-deep); border-radius:16px;
+    padding:20px; text-align:center;
+    box-shadow: 0 12px 26px rgba(0,0,0,0.32);
+  }
+  .die-display{
+    width:58px; height:58px; margin:0 auto 12px;
+    border-radius:14px;
+    background: linear-gradient(155deg, var(--strata-3), var(--strata-1));
+    color: var(--amber-soft);
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--mono); font-weight:700; font-size:26px;
+    box-shadow: 0 8px 18px rgba(0,0,0,0.4), inset 0 0 0 1px rgba(255,255,255,0.08), inset 0 -3px 6px rgba(0,0,0,0.35);
+    transform: rotate(-3deg);
+  }
+  .roll-btn{ background: linear-gradient(135deg, var(--magma), var(--magma-deep)); color:#fff; box-shadow:0 8px 18px rgba(194,59,30,.4); }
+  .message{ margin-top:12px; min-height:22px; font-weight:600; color: var(--strata-1); font-size:14px; }
+  .next-btn{ background: linear-gradient(135deg, var(--moss), #375c41); color:#fff; margin-top:10px; display:none; box-shadow:0 8px 18px rgba(79,122,91,.35); }
+
+  /* ---- Modal ---- */
+  .overlay{
+    display:none; position:fixed; inset:0; background: rgba(10,7,4,0.72);
+    backdrop-filter: blur(2px);
+    align-items:center; justify-content:center; padding:16px; z-index:50;
+  }
+  .overlay.active{ display:flex; }
+  .modal{
+    background: var(--parchment); border-radius:16px; padding:24px; max-width:420px; width:100%;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+    border-top: 5px solid var(--amber);
+    animation: modal-rise .18s ease-out;
+  }
+  @keyframes modal-rise{ from{ opacity:0; transform: translateY(10px) scale(.98); } to{ opacity:1; transform:none; } }
+  .modal .tag{ font-family:var(--mono); font-size:10.5px; font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-bottom:8px; }
+  .modal.quiz-modal{ border-top-color: var(--moss); }
+  .modal.quiz-modal .tag{ color: #3f8f5f; }
+  .modal.event-modal{ border-top-color: #55618f; }
+  .modal.event-modal .tag{ color: #55618f; }
+  .modal h3{ font-family:'Kanit'; font-weight:700; font-size:18px; margin: 0 0 14px; color: var(--ink); line-height:1.4; }
+  .options{ display:flex; flex-direction:column; gap:8px; margin-bottom: 8px; }
+  .option-btn{
+    text-align:left; padding:11px 14px; border-radius:10px; border:1.5px solid var(--stone-deep);
+    background:#fffef9; cursor:pointer; font-family:'Prompt'; font-size:14px; color: var(--ink);
+    transition: border-color .12s, background .12s;
+  }
+  .option-btn:hover:not(:disabled){ border-color: var(--amber); background:#fdf6e6; }
+  .option-btn.correct{ background: #e3f2e6; border-color: #3f8f5f; font-weight:700; }
+  .option-btn.wrong{ background: #f6d3d8; border-color: #d1495b; }
+  .option-btn:disabled{ cursor:default; }
+  .modal-close-btn{ margin-top:14px; width:100%; background: var(--strata-1); color:var(--paper); }
+
+  .win-overlay .modal{ text-align:center; border-top-color: var(--amber); }
+  .win-overlay h3{ font-family:'Kanit'; font-size:24px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <div class="eyebrow">แกนหินตัวอย่าง · Core Sample No.40</div>
+    <h1>🌋 ECO-TERRA: วิกฤตโลกหลากยุค 💎</h1>
+    <p>บอร์ดเกม 40 ช่อง สำรวจธรณีวิทยา & พิชิตภัยธรรมชาติ (2–5 คน)</p>
+  </div>
+
+  <!-- SETUP -->
+  <div class="setup" id="setupScreen">
+    <h2>ตั้งค่าผู้เล่น</h2>
+    <div id="playerRows"></div>
+    <div class="setup-actions">
+      <button class="btn btn-add" id="addPlayerBtn">+ เพิ่มผู้เล่น</button>
+      <button class="btn btn-start" id="startGameBtn">🎲 เริ่มเกม</button>
+    </div>
+    <div class="setup-hint" id="setupHint">ใส่ชื่อผู้เล่น 2–5 คน แล้วเลือกสี — บอร์ดยาว 40 ช่อง เล่นนานขึ้น ชนะยากขึ้น!</div>
+    <div class="legend">
+      <span><i class="dot" style="background:#e3f2e6;border:1px solid #3f8f5f"></i>คำถามธรณี</span>
+      <span><i class="dot" style="background:#fbe6c8;border:1px solid #e2933a"></i>ฟอสซิล (โบนัส)</span>
+      <span><i class="dot" style="background:#d7f0ec;border:1px solid #2f9e8f"></i>สายแร่/พลอย (โบนัส)</span>
+      <span><i class="dot" style="background:#dbeafe;border:1px solid #2f7ea8"></i>สึนามิ/น้ำท่วม</span>
+      <span><i class="dot" style="background:#fbdcd0;border:1px solid #c1442c"></i>ภูเขาไฟ/ลาวา</span>
+      <span><i class="dot" style="background:#e6dcf2;border:1px solid #5b3b8c"></i>อุกกาบาต</span>
+      <span><i class="dot" style="background:#eaf6fb;border:1px solid #57a8c9"></i>ยุคน้ำแข็ง</span>
+      <span><i class="dot" style="background:#f5ecd6;border:1px solid #b98b3e"></i>ภัยแล้ง</span>
+      <span><i class="dot" style="background:#ecdfd0;border:1px solid #8a6240"></i>ดินถล่ม (หยุดเล่น)</span>
+      <span><i class="dot" style="background:#f0e3f2;border:1px solid #8c4f96"></i>ถ้ำ/สำรวจ</span>
+      <span><i class="dot" style="background:#e4e8f0;border:1px solid #55618f"></i>แผ่นดินไหว/เทคโทนิก</span>
+    </div>
+  </div>
+
+  <!-- GAME -->
+  <div class="game" id="gameScreen">
+    <div class="status-bar">
+      <div class="turn-indicator">
+        <div class="turn-dot" id="turnDot"></div>
+        <span id="turnLabel">ตาของ...</span>
+      </div>
+      <div class="players-scores" id="playersScores"></div>
+    </div>
+
+    <div class="board-wrap">
+      <div class="board" id="board"></div>
+    </div>
+
+    <div class="controls">
+      <div class="die-display" id="dieDisplay">–</div>
+      <button class="btn roll-btn" id="rollBtn">ทอยลูกเต๋า</button>
+      <div class="message" id="message"></div>
+      <button class="btn next-btn" id="nextBtn">ผู้เล่นถัดไป →</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="overlay" id="modalOverlay">
+  <div class="modal quiz-modal" id="modalBox">
+    <div class="tag" id="modalTag">คำถามธรณี</div>
+    <h3 id="modalQuestion">...</h3>
+    <div class="options" id="modalOptions"></div>
+    <button class="btn modal-close-btn" id="modalCloseBtn" style="display:none;">ไปต่อ</button>
+  </div>
+</div>
+
+<div class="overlay win-overlay" id="winOverlay">
+  <div class="modal">
+    <div class="tag" style="color:var(--gold);">🏆 จบเกม</div>
+    <h3 id="winText">...</h3>
+    <button class="btn btn-start" id="playAgainBtn">เล่นใหม่</button>
+  </div>
+</div>
+
+<script>
+// ---------------- Data ----------------
+const COLORS = ['#d1495b','#2f7ea8','#e2933a','#3f8f5f','#8e5db0'];
+
+const QUIZ_QUESTIONS = [
+  { q: "ชั้นหินชนิดใดเกิดจากการทับถมของตะกอน?", options:["หินอัคนี","หินตะกอน","หินแปร","หินหนืด"], correct:1 },
+  { q: "ไดโนเสาร์สูญพันธุ์เมื่อประมาณกี่ล้านปีก่อน?", options:["6.6 ล้านปี","1 ล้านปี","100 ล้านปี","65,000 ปี"], correct:0 },
+  { q: "แผ่นเปลือกโลกเคลื่อนที่เพราะอะไรเป็นหลัก?", options:["แรงลม","การพาความร้อนในชั้นแมนเทิล","แรงโน้มถ่วงดวงจันทร์","คลื่นสึนามิ"], correct:1 },
+  { q: "หินอัคนีเกิดจากอะไร?", options:["การแข็งตัวของแมกมา/ลาวา","การทับถมของเปลือกหอย","แรงกดดันใต้ทะเล","การผุพังของหินปูน"], correct:0 },
+  { q: "จุดศูนย์กลางแผ่นดินไหวใต้ผิวโลกเรียกว่าอะไร?", options:["ไฮโปเซนเตอร์ (โฟกัส)","อิพิเซนเตอร์","แมกมาแชมเบอร์","ร่องลึกก้นสมุทร"], correct:0 },
+  { q: "ทวีปทั้งหมดเคยรวมกันเป็นผืนเดียวเรียกว่าอะไร?", options:["แพนเจีย","แอตแลนติส","กอนด์วานา","ยูเรเซีย"], correct:0 },
+  { q: "หินงอกหินย้อยในถ้ำเกิดจากแร่ชนิดใดเป็นหลัก?", options:["ควอตซ์","แคลไซต์","เฟลด์สปาร์","ไมกา"], correct:1 },
+  { q: "ซากดึกดำบรรพ์ (ฟอสซิล) ส่วนใหญ่พบในหินชนิดใด?", options:["หินตะกอน","หินอัคนี","หินแปร","หินภูเขาไฟ"], correct:0 },
+  { q: "วงแหวนแห่งไฟ (Ring of Fire) เกี่ยวข้องกับปรากฏการณ์ใด?", options:["ภูเขาไฟและแผ่นดินไหวรอบมหาสมุทรแปซิฟิก","กระแสน้ำอุ่น","การเกิดฝนกรด","หลุมอุกกาบาต"], correct:0 },
+  { q: "ยุคใดที่ไดโนเสาร์ครองโลก?", options:["ยุคมีโซโซอิก","ยุคพาลีโอโซอิก","ยุคซีโนโซอิก","ยุคพรีแคมเบรียน"], correct:0 },
+  { q: "สึนามิส่วนใหญ่เกิดจากอะไร?", options:["พายุ","แผ่นดินไหวใต้ทะเล","น้ำขึ้นน้ำลง","ภาวะโลกร้อน"], correct:1 },
+  { q: "แร่ที่แข็งที่สุดตามสเกลโมส์คือแร่ใด?", options:["เพชร","ควอตซ์","แกรนิต","ทองคำ"], correct:0 },
+  { q: "ยุคน้ำแข็งครั้งล่าสุดสิ้นสุดลงเมื่อประมาณกี่ปีก่อน?", options:["11,700 ปี","1,000 ปี","1 ล้านปี","500 ปี"], correct:0 },
+  { q: "หินแปรเกิดจากอะไร?", options:["ความร้อนและความดันเปลี่ยนหินเดิม","การแข็งตัวของลาวา","การทับถมของตะกอน","การละลายของน้ำแข็ง"], correct:0 },
+  { q: "ชั้นบรรยากาศชั้นในสุดของโลกเรียกว่าอะไร?", options:["แก่นโลก (Core)","เปลือกโลก (Crust)","แมนเทิล (Mantle)","โทรโพสเฟียร์"], correct:1 },
+  { q: "อะไรคือสาเหตุหลักของการเกิดภูเขาไฟระเบิด?", options:["แมกมาดันตัวขึ้นผ่านรอยแตกของเปลือกโลก","ลมพายุ","แรงโน้มถ่วงดวงอาทิตย์","คลื่นสึนามิ"], correct:0 },
+  { q: "ทองคำจัดเป็นแร่ประเภทใด?", options:["แร่โลหะ","แร่อโลหะ","แร่เชื้อเพลิง","หินตะกอน"], correct:0 },
+  { q: "แม่น้ำและลมมีบทบาทหลักในกระบวนการใดของโลก?", options:["การผุพังและการกัดเซาะ","การหลอมละลายของแกนโลก","การเกิดแผ่นดินไหว","การก่อตัวของดวงจันทร์"], correct:0 },
+  { q: "อุกกาบาตที่ตกถึงพื้นโลกเรียกว่าอะไร?", options:["มีทีออไรต์","ดาวหาง","ดาวเคราะห์น้อย","อุกกาบาต (ก่อนตก)"], correct:0 },
+  { q: "ทะเลทรายส่วนใหญ่เกิดจากปัจจัยใด?", options:["ปริมาณฝนตกน้อยมาก","อุณหภูมิต่ำมาก","ความสูงจากระดับน้ำทะเล","แผ่นดินไหวบ่อยครั้ง"], correct:0 },
+];
+
+const EVENT_CARDS = [
+  { text: "แผ่นดินไหวเขย่าทั่วโลก! ผู้เล่นทุกคนถอยหลัง 1 ช่อง", effect: "all_back_1" },
+  { text: "นักธรณีวิทยาค้นพบชั้นหินใหม่ คุณได้เดินหน้า 2 ช่อง", effect: "self_fwd_2" },
+  { text: "ฝนตกหนักทำให้ทางเดินเป็นโคลน คุณต้องหยุดพัก 1 ตา", effect: "self_skip" },
+  { text: "พบถ้ำหินปูนสวยงาม ทุกคนได้แรงบันดาลใจ เดินหน้าคนละ 1 ช่อง", effect: "all_fwd_1" },
+  { text: "อุกกาบาตพุ่งชน! คุณถอยหลัง 3 ช่อง", effect: "self_back_3" },
+  { text: "แผ่นเปลือกโลกเลื่อนตัวกะทันหัน คุณถอยหลัง 2 ช่อง", effect: "self_back_2" },
+  { text: "พบซากดึกดำบรรพ์หายาก! เดินหน้า 3 ช่อง", effect: "self_fwd_3" },
+];
+
+// Color palette by theme
+const THEME = {
+  quiz:      { bg:'#e3f2e6', border:'#3f8f5f' },
+  fossil:    { bg:'#fbe6c8', border:'#e2933a' },
+  ore:       { bg:'#d7f0ec', border:'#2f9e8f' },
+  water:     { bg:'#dbeafe', border:'#2f7ea8' },
+  fire:      { bg:'#fbdcd0', border:'#c1442c' },
+  meteor:    { bg:'#e6dcf2', border:'#5b3b8c' },
+  ice:       { bg:'#eaf6fb', border:'#57a8c9' },
+  drought:   { bg:'#f5ecd6', border:'#b98b3e' },
+  landslide: { bg:'#ecdfd0', border:'#8a6240' },
+  cave:      { bg:'#f0e3f2', border:'#8c4f96' },
+  quake:     { bg:'#e4e8f0', border:'#55618f' },
+  start:     { bg:'#1c6b52', border:'#0f3d2e', text:'#fff' },
+  finish:    { bg:'#1d5e8f', border:'#0d2a44', text:'#fff' },
+};
+
+function cell(id, label, icon, theme, type, amount){
+  return { id, label, icon, theme, type, amount };
+}
+
+// 40-space board: START + 38 thematic spaces + FINISH
+const BOARD = [
+  cell('START','จุดเริ่มต้น','🚩','start','start'),
+  cell('1','คำถามธรณี','❓','quiz','quiz'),
+  cell('2','ขุดพบฟอสซิล (+2)','🦴','fossil','bonus',2),
+  cell('3','แผ่นดินไหว (จั่วการ์ด)','💥','quake','event'),
+  cell('4','คำถามธรณี','❓','quiz','quiz'),
+  cell('5','แผ่นเทคโทนิกเคลื่อนตัว','🗺️','quake','event'),
+  cell('6','พบสายแร่ (+1)','💎','ore','bonus',1),
+  cell('7','คำถามธรณี','❓','quiz','quiz'),
+  cell('8','สึนามิซัด (ถอย 2)','🌊','water','hazard',2),
+  cell('9','คำถามธรณี','❓','quiz','quiz'),
+  cell('10','ภูเขาไฟระเบิด (ถอย 3)','🌋','fire','hazard',3),
+  cell('11','คำถามธรณี','❓','quiz','quiz'),
+  cell('12','สำรวจถ้ำหินปูน','🧗','cave','event'),
+  cell('13','คำถามธรณี','❓','quiz','quiz'),
+  cell('14','ลาวาหลาก (ถอย 2)','🔥','fire','hazard',2),
+  cell('15','ดินถล่ม (หยุด 1 ตา)','⛰️','landslide','skip'),
+  cell('16','คำถามธรณี','❓','quiz','quiz'),
+  cell('17','ฟอสซิล T-Rex (+3)','🦖','fossil','bonus',3),
+  cell('18','คำถามธรณี','❓','quiz','quiz'),
+  cell('19','อุกกาบาตพุ่งชน (ถอย 3)','☄️','meteor','hazard',3),
+  cell('20','คำถามธรณี','❓','quiz','quiz'),
+  cell('21','ยุคน้ำแข็งมาเยือน (หยุด 1 ตา)','🧊','ice','skip'),
+  cell('22','คำถามธรณี','❓','quiz','quiz'),
+  cell('23','น้ำท่วมฉับพลัน (ถอย 2)','🌧️','water','hazard',2),
+  cell('24','คำถามธรณี','❓','quiz','quiz'),
+  cell('25','พบสายแร่ล้ำค่า (+2)','💎','ore','bonus',2),
+  cell('26','คำถามธรณี','❓','quiz','quiz'),
+  cell('27','แผ่นดินไหวรุนแรง (จั่วการ์ด)','💥','quake','event'),
+  cell('28','คำถามธรณี','❓','quiz','quiz'),
+  cell('29','ภัยแล้งรุนแรง (ถอย 1)','🏜️','drought','hazard',1),
+  cell('30','คำถามธรณี','❓','quiz','quiz'),
+  cell('31','แผ่นเทคโทนิกชนกัน (จั่วการ์ด)','🗺️','quake','event'),
+  cell('32','คำถามธรณี','❓','quiz','quiz'),
+  cell('33','คลื่นสึนามิลูกใหม่ (ถอย 1)','🌊','water','hazard',1),
+  cell('34','คำถามธรณี','❓','quiz','quiz'),
+  cell('35','ภูเขาไฟอีกลูกปะทุ (ถอย 2)','🌋','fire','hazard',2),
+  cell('36','คำถามธรณี','❓','quiz','quiz'),
+  cell('37','ขุดพบฟอสซิลล้ำค่า (+2)','🦴','fossil','bonus',2),
+  cell('38','คำถามธรณีข้อสุดท้าย','❓','quiz','quiz'),
+  cell('FINISH','โลกสมบูรณ์','🏆','finish','finish'),
+];
+const FINISH_INDEX = BOARD.findIndex(c => c.type === 'finish');
+
+// ---------------- State ----------------
+let players = [];
+let currentPlayerIdx = 0;
+
+// ---------------- Setup screen ----------------
+const playerRowsEl = document.getElementById('playerRows');
+const setupHint = document.getElementById('setupHint');
+let setupPlayers = [
+  { name:'', color: COLORS[0] },
+  { name:'', color: COLORS[1] },
+];
+
+function renderSetupRows(){
+  playerRowsEl.innerHTML = '';
+  setupPlayers.forEach((p, i) => {
+    const row = document.createElement('div');
+    row.className = 'player-row';
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.placeholder = `ชื่อผู้เล่น ${i+1}`;
+    input.value = p.name;
+    input.maxLength = 14;
+    input.oninput = (e) => { setupPlayers[i].name = e.target.value; };
+    row.appendChild(input);
+
+    const swatchWrap = document.createElement('div');
+    swatchWrap.className = 'swatches';
+    COLORS.forEach(c => {
+      const sw = document.createElement('div');
+      sw.className = 'swatch' + (p.color === c ? ' selected' : '');
+      sw.style.background = c;
+      sw.onclick = () => { setupPlayers[i].color = c; renderSetupRows(); };
+      swatchWrap.appendChild(sw);
+    });
+    row.appendChild(swatchWrap);
+
+    if(setupPlayers.length > 2){
+      const rm = document.createElement('button');
+      rm.className = 'remove-player';
+      rm.textContent = '×';
+      rm.onclick = () => { setupPlayers.splice(i,1); renderSetupRows(); };
+      row.appendChild(rm);
+    }
+    playerRowsEl.appendChild(row);
+  });
+}
+renderSetupRows();
+
+document.getElementById('addPlayerBtn').onclick = () => {
+  if(setupPlayers.length >= 5){ setupHint.textContent = 'เพิ่มได้สูงสุด 5 คน'; return; }
+  const usedColors = setupPlayers.map(p => p.color);
+  const nextColor = COLORS.find(c => !usedColors.includes(c)) || COLORS[0];
+  setupPlayers.push({ name:'', color: nextColor });
+  renderSetupRows();
+};
+
+document.getElementById('startGameBtn').onclick = () => {
+  const valid = setupPlayers.filter(p => p.name.trim() !== '');
+  if(valid.length < 2){
+    setupHint.textContent = 'กรุณาใส่ชื่อผู้เล่นอย่างน้อย 2 คน';
+    return;
+  }
+  players = valid.map(p => ({ name: p.name.trim(), color: p.color, position: 0, skipNext: false }));
+  document.getElementById('setupScreen').style.display = 'none';
+  document.getElementById('gameScreen').classList.add('active');
+  renderBoard();
+  updateStatusBar();
+};
+
+// ---------------- Board rendering ----------------
+const boardEl = document.getElementById('board');
+function renderBoard(){
+  boardEl.innerHTML = '';
+  BOARD.forEach((c, idx) => {
+    const theme = THEME[c.theme] || THEME.quiz;
+    const div = document.createElement('div');
+    div.className = 'cell';
+    div.style.background = `linear-gradient(160deg, #ffffff 0%, ${theme.bg} 55%, ${theme.bg} 100%)`;
+    div.style.borderColor = theme.border;
+    if(theme.text) div.style.color = theme.text;
+
+    let badgeHtml = '';
+    if(c.type === 'bonus') badgeHtml = `<div class="badge" style="background:${theme.border}">+${c.amount}</div>`;
+    else if(c.type === 'hazard') badgeHtml = `<div class="badge" style="background:${theme.border}">-${c.amount}</div>`;
+    else if(c.type === 'skip') badgeHtml = `<div class="badge" style="background:${theme.border}">⏸</div>`;
+    else if(c.type === 'event') badgeHtml = `<div class="badge" style="background:${theme.border}">🎴</div>`;
+
+    div.innerHTML = `
+      <div class="num" style="background:${theme.border}">${c.id}</div>
+      <div class="icon-chip" style="border:2px solid ${theme.border}">${c.icon}</div>
+      <div class="label">${c.label}</div>
+      ${badgeHtml}
+      <div class="tokens" id="tokens-${idx}"></div>
+    `;
+    boardEl.appendChild(div);
+  });
+  placeTokens();
+}
+
+function placeTokens(){
+  BOARD.forEach((_, idx) => {
+    const t = document.getElementById('tokens-' + idx);
+    if(t) t.innerHTML = '';
+  });
+  players.forEach((p, i) => {
+    const t = document.getElementById('tokens-' + p.position);
+    if(t){
+      const dot = document.createElement('div');
+      dot.className = 'token' + (i === currentPlayerIdx ? ' mover' : '');
+      dot.style.background = p.color;
+      dot.title = p.name;
+      t.appendChild(dot);
+    }
+  });
+}
+
+// ---------------- Status bar ----------------
+function updateStatusBar(){
+  const cur = players[currentPlayerIdx];
+  document.getElementById('turnDot').style.background = cur.color;
+  document.getElementById('turnLabel').textContent = `ตาของ ${cur.name}`;
+  const scoresEl = document.getElementById('playersScores');
+  scoresEl.innerHTML = players.map(p =>
+    `<span style="color:${p.color}"><b>${p.name}</b>: ช่อง ${p.position === 0 ? 'START' : BOARD[p.position].id}</span>`
+  ).join('');
+}
+
+// ---------------- Turn / dice logic ----------------
+const rollBtn = document.getElementById('rollBtn');
+const nextBtn = document.getElementById('nextBtn');
+const messageEl = document.getElementById('message');
+const dieDisplay = document.getElementById('dieDisplay');
+
+rollBtn.onclick = () => {
+  const cur = players[currentPlayerIdx];
+  if(cur.skipNext){
+    cur.skipNext = false;
+    messageEl.textContent = `${cur.name} ต้องหยุดพัก 1 ตา (ข้ามตานี้)`;
+    dieDisplay.textContent = '–';
+    rollBtn.style.display = 'none';
+    nextBtn.style.display = 'inline-block';
+    return;
+  }
+
+  rollBtn.disabled = true;
+  let rolls = 0;
+  const rollAnim = setInterval(() => {
+    dieDisplay.textContent = 1 + Math.floor(Math.random()*6);
+    rolls++;
+    if(rolls > 8){
+      clearInterval(rollAnim);
+      const finalRoll = 1 + Math.floor(Math.random()*6);
+      dieDisplay.textContent = finalRoll;
+      movePlayer(cur, finalRoll);
+    }
+  }, 80);
+};
+
+// ---------------- Animated movement ----------------
+// Moves a player one board space at a time, re-rendering tokens between
+// each step so the token visibly hops across the board.
+function animateSteps(player, steps, onDone){
+  const dir = steps > 0 ? 1 : -1;
+  let remaining = Math.abs(steps);
+  const STEP_MS = 230;
+
+  const tick = () => {
+    let next = player.position + dir;
+    let finished = false;
+    let blocked = false;
+    if(next >= FINISH_INDEX){ next = FINISH_INDEX; finished = true; }
+    if(next <= 0){ next = 0; blocked = true; }
+
+    player.position = next;
+    placeTokens();
+    updateStatusBar();
+    remaining--;
+
+    if(finished){ onDone(true); return; }
+    if(blocked || remaining <= 0){ onDone(false); return; }
+    setTimeout(tick, STEP_MS);
+  };
+
+  if(remaining <= 0){ onDone(false); return; }
+  setTimeout(tick, STEP_MS);
+}
+
+function movePlayer(player, steps){
+  rollBtn.style.display = 'none';
+  animateSteps(player, steps, (finished) => {
+    if(finished){ showWin(player); return; }
+    applyCellEffect(player, BOARD[player.position]);
+  });
+}
+
+function applyCellEffect(player, c){
+  rollBtn.style.display = 'none';
+
+  switch(c.type){
+    case 'quiz':
+      showQuiz(player);
+      break;
+    case 'bonus':
+      messageEl.textContent = `${player.name} ${c.label} — เดินหน้าอีก ${c.amount} ช่อง!`;
+      advance(player, c.amount, true);
+      break;
+    case 'hazard':
+      messageEl.textContent = `${player.name} เจอ${c.label}!`;
+      advance(player, -c.amount, true);
+      break;
+    case 'skip':
+      messageEl.textContent = `${player.name} เจอ${c.label}`;
+      player.skipNext = true;
+      finishTurn();
+      break;
+    case 'event':
+      showEvent(player);
+      break;
+    default:
+      finishTurn();
+  }
+}
+
+function advance(player, amount, silentIfNoModal){
+  animateSteps(player, amount, (finished) => {
+    if(finished){ showWin(player); return; }
+    if(silentIfNoModal) finishTurn();
+  });
+}
+
+// Moves every player by `amount` in a short cascading sequence (used by
+// event cards that affect the whole group), then reports whether anyone won.
+function animateAllPlayers(amount, callback){
+  let pending = players.length;
+  let winner = null;
+  players.forEach((p, i) => {
+    setTimeout(() => {
+      animateSteps(p, amount, (finished) => {
+        if(finished) winner = p;
+        pending--;
+        if(pending === 0) callback(winner);
+      });
+    }, i * 130);
+  });
+}
+
+function finishTurn(){
+  nextBtn.style.display = 'inline-block';
+}
+
+nextBtn.onclick = () => {
+  nextBtn.style.display = 'none';
+  rollBtn.style.display = 'inline-block';
+  rollBtn.disabled = false;
+  dieDisplay.textContent = '–';
+  messageEl.textContent = '';
+  currentPlayerIdx = (currentPlayerIdx + 1) % players.length;
+  updateStatusBar();
+};
+
+// ---------------- Quiz modal ----------------
+const modalOverlay = document.getElementById('modalOverlay');
+const modalBox = document.getElementById('modalBox');
+const modalTag = document.getElementById('modalTag');
+const modalQuestion = document.getElementById('modalQuestion');
+const modalOptions = document.getElementById('modalOptions');
+const modalCloseBtn = document.getElementById('modalCloseBtn');
+
+function showQuiz(player){
+  const q = QUIZ_QUESTIONS[Math.floor(Math.random() * QUIZ_QUESTIONS.length)];
+  modalBox.className = 'modal quiz-modal';
+  modalTag.textContent = 'คำถามธรณี — ' + player.name;
+  modalQuestion.textContent = q.q;
+  modalOptions.innerHTML = '';
+  modalCloseBtn.style.display = 'none';
+
+  q.options.forEach((opt, i) => {
+    const b = document.createElement('button');
+    b.className = 'option-btn';
+    b.textContent = opt;
+    b.onclick = () => {
+      document.querySelectorAll('.option-btn').forEach(btn => btn.disabled = true);
+      if(i === q.correct){
+        b.classList.add('correct');
+        messageEl.textContent = `${player.name} ตอบถูก! เดินหน้าโบนัส 1 ช่อง`;
+      } else {
+        b.classList.add('wrong');
+        modalOptions.children[q.correct].classList.add('correct');
+        messageEl.textContent = `${player.name} ตอบผิด — ไม่ได้โบนัส`;
+      }
+      modalCloseBtn.style.display = 'block';
+      modalCloseBtn.onclick = () => {
+        modalOverlay.classList.remove('active');
+        if(i === q.correct){
+          advance(player, 1, true);
+        } else {
+          finishTurn();
+        }
+      };
+    };
+    modalOptions.appendChild(b);
+  });
+
+  modalOverlay.classList.add('active');
+}
+
+// ---------------- Event card modal ----------------
+function showEvent(player){
+  const card = EVENT_CARDS[Math.floor(Math.random() * EVENT_CARDS.length)];
+  modalBox.className = 'modal event-modal';
+  modalTag.textContent = 'การ์ดเหตุการณ์ธรณี';
+  modalQuestion.textContent = card.text;
+  modalOptions.innerHTML = '';
+  modalCloseBtn.style.display = 'block';
+  modalCloseBtn.onclick = () => {
+    modalOverlay.classList.remove('active');
+    runEventEffect(player, card.effect);
+  };
+  modalOverlay.classList.add('active');
+}
+
+function runEventEffect(player, effect){
+  switch(effect){
+    case 'all_back_1':
+      animateAllPlayers(-1, () => finishTurn());
+      break;
+    case 'self_fwd_2':
+      advance(player, 2, true);
+      break;
+    case 'self_fwd_3':
+      advance(player, 3, true);
+      break;
+    case 'self_skip':
+      player.skipNext = true;
+      finishTurn();
+      break;
+    case 'all_fwd_1':
+      animateAllPlayers(1, (winner) => {
+        if(winner) showWin(winner);
+        else finishTurn();
+      });
+      break;
+    case 'self_back_2':
+      advance(player, -2, true);
+      break;
+    case 'self_back_3':
+      advance(player, -3, true);
+      break;
+    default:
+      finishTurn();
+  }
+}
+
+// ---------------- Win ----------------
+const winOverlay = document.getElementById('winOverlay');
+function showWin(player){
+  document.getElementById('winText').innerHTML = `<span style="color:${player.color}">${player.name}</span> พิชิตโลกสมบูรณ์ก่อนใคร! 🌍✨`;
+  winOverlay.classList.add('active');
+}
+
+document.getElementById('playAgainBtn').onclick = () => {
+  winOverlay.classList.remove('active');
+  players.forEach(p => { p.position = 0; p.skipNext = false; });
+  currentPlayerIdx = 0;
+  placeTokens();
+  updateStatusBar();
+  rollBtn.style.display = 'inline-block';
+  rollBtn.disabled = false;
+  nextBtn.style.display = 'none';
+  dieDisplay.textContent = '–';
+  messageEl.textContent = '';
+};
+</script>
+</body>
+</html>
